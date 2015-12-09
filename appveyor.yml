@@ -1,0 +1,49 @@
+version: 1.0.0{build}
+clone_folder: C:\Projects\HOTT
+environment:
+  _zip: '%APPVEYOR_BUILD_FOLDER%\HaloOnlineTagTool-%APPVEYOR_BUILD_VERSION%.7z'
+  _7z: 7z -t7z -m0=lzma -mx=9 -mfb=64 -md=32m -ms=on a %_zip%
+  _debug: '"C:\Program Files (x86)\MSBuild\12.0\Bin\MSBuild.exe" "HaloOnlineTagTool.sln" /m /verbosity:minimal /logger:"C:\Program Files\AppVeyor\BuildAgent\Appveyor.MSBuildLogger.dll" /p:Configuration=Debug /p:Platform="Any CPU"'
+  _release: '"C:\Program Files (x86)\MSBuild\12.0\Bin\MSBuild.exe" "HaloOnlineTagTool.sln" /m /verbosity:minimal /logger:"C:\Program Files\AppVeyor\BuildAgent\Appveyor.MSBuildLogger.dll" /p:Configuration=Release /p:Platform="Any CPU"'
+install:
+- cmd: >-
+    git clone https://github.com/ElDewrito/HaloOnlineTagTool.git C:\Projects\HOTT\Shockfire
+    git clone https://github.com/camden-smallwood/HaloOnlineTagTool.git C:\Projects\HOTT\Camden
+    git clone https://github.com/Gurten/HaloOnlineTagTool.git C:\Projects\HOTT\Gurten
+build_script:
+- cmd: >-
+    CD C:\Projects\HOTT\Shockfire\
+    nuget restore
+    %_debug%
+    %_release%
+
+    CD C:\Projects\HOTT\Camden\
+    nuget restore
+    %_debug%
+    %_release%
+
+    CD C:\Projects\HOTT\Gurten\
+    nuget restore
+    %_debug%
+    %_release%
+
+    CD C:\Projects\HOTT\
+    %_7z% Shockfire\HaloOnlineTagTool\bin\Debug\HaloOnlineTagTool.exe
+    %_7z% Shockfire\HaloOnlineTagTool\bin\Debug\Assimp32.dll
+    %_7z% Shockfire\HaloOnlineTagTool\bin\Release\HaloOnlineTagTool.exe
+    %_7z% Shockfire\HaloOnlineTagTool\bin\Release\Assimp32.dll
+    %_7z% Shockfire\phmo\*
+
+    %_7z% Camden\HaloOnlineTagTool\bin\Debug\HaloOnlineTagTool.exe
+    %_7z% Camden\HaloOnlineTagTool\bin\Debug\Assimp32.dll
+    %_7z% Camden\HaloOnlineTagTool\bin\Release\HaloOnlineTagTool.exe
+    %_7z% Camden\HaloOnlineTagTool\bin\Release\Assimp32.dll
+    %_7z% Camden\phmo\*
+
+    %_7z% Gurten\HaloOnlineTagTool\bin\Debug\HaloOnlineTagTool.exe
+    %_7z% Gurten\HaloOnlineTagTool\bin\Debug\Assimp32.dll
+    %_7z% Gurten\HaloOnlineTagTool\bin\Release\HaloOnlineTagTool.exe
+    %_7z% Gurten\HaloOnlineTagTool\bin\Release\Assimp32.dll
+    %_7z% Gurten\phmo_coll\*
+
+    appveyor PushArtifact %_zip%
